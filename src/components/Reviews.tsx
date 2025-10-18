@@ -5,7 +5,7 @@ import ReviewItem from '@/components/ReviewItem';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button'; // Assuming Button component is available
 
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || 'https://vardhan.pythonanywhere.com/api/hostels';
+const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || 'https://vardhan.pythonanywhere.com/api';
 
 const Reviews = ({ hostelId, authToken: propAuthToken }) => {
   // FUNCTIONALITY UNTOUCHED: State and Context hooks
@@ -36,10 +36,17 @@ const Reviews = ({ hostelId, authToken: propAuthToken }) => {
       return;
     }
 
-    const url = `${API_BASE}/reviews/?hostel=${encodeURIComponent(hostelId)}`;
+    const url = `${API_BASE}/hostels/reviews/?hostel=${encodeURIComponent(hostelId)}`;
     console.debug('Reviews: fetching', url);
     fetch(url)
-      .then(res => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          const text = await res.text();
+          console.error('Reviews API error:', res.status, text.substring(0, 200));
+          throw new Error(`API returned ${res.status}: ${text.substring(0, 100)}`);
+        }
+        return res.json();
+      })
       .then(data => {
           let list = Array.isArray(data) ? data.map(mapReview) : [];
           list = list.filter((rv:any) => String(rv.hostel) === String(hostelId));
@@ -82,7 +89,7 @@ const Reviews = ({ hostelId, authToken: propAuthToken }) => {
     if (!newReview.review_text) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/reviews/`, {
+      const res = await fetch(`${API_BASE}/hostels/reviews/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

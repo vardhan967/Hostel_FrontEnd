@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ReviewItem from '@/components/ReviewItem';
 import { useAuth } from '@/contexts/AuthContext';
 
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || 'https://vardhan.pythonanywhere.com/api/hostels';
+const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || 'https://vardhan.pythonanywhere.com/api';
 
 const mapReview = (r: any) => ({
   id: r.id,
@@ -23,7 +23,7 @@ const Reviews = ({ hostelId }: { hostelId?: number }) => {
     const fetchReviews = async () => {
       setLoading(true);
       try {
-        const url = hostelId ? `${API_BASE}/reviews/?hostel=${hostelId}` : `${API_BASE}/reviews/`;
+        const url = hostelId ? `${API_BASE}/hostels/reviews/?hostel=${hostelId}` : `${API_BASE}/hostels/reviews/`;
         const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
         if (!res.ok) throw new Error('Failed to fetch reviews');
         const data = await res.json();
